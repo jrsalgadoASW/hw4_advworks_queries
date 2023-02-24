@@ -33,8 +33,11 @@ WITH
             ROW_NUMBER() OVER(PARTITION BY TerritoryID ORDER BY UnitPrice DESC) ranking
         FROM Sales.SalesOrderHeader orderHeader
             INNER JOIN Sales.SalesOrderDetail orderDetails ON orderDetails.SalesOrderID = orderHeader.SalesOrderID
-        WHERE 
-            OrderDate<= @lastMonthEnd AND OrderDate>= @lastMonthBegin
+        WHERE orderHeader.OrderDate >= DATEADD(
+            month, -1, (
+                SELECT MAX(OrderDate)
+                FROM Sales.SalesOrderHeader)
+            )
 
     )
 SELECT *
